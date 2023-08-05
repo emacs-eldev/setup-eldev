@@ -6,10 +6,10 @@ runs:
   using: composite
   steps:
   - if: "!startsWith (vars.RUNNER_OS, 'windows')"
-    run: curl -fsSL https://raw.github.com/doublep/eldev/master/webinstall/github-eldev | sh
+    run: curl -fsSL https://raw.github.com/emacs-eldev/eldev/master/webinstall/github-eldev | sh
     shell: bash
   - if: startsWith (vars.RUNNER_OS, 'windows')
-    run: curl.exe -fsSL https://raw.github.com/doublep/eldev/master/webinstall/github-eldev.bat | cmd /Q
+    run: curl.exe -fsSL https://raw.github.com/emacs-eldev/eldev/master/webinstall/github-eldev.bat | cmd /Q
     shell: bash
 
 # https://haya14busa.github.io/github-action-brandings

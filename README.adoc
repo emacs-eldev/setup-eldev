@@ -6,15 +6,15 @@ ifdef::env-github[]
 :note-caption: :paperclip:
 :tip-caption: :bulb:
 endif::[]
-:uri-eldev: https://eldev.github.io/eldev/
-:uri-eldev-doc: https://eldev.github.io/eldev/
+:uri-eldev: https://emacs-eldev.github.io/eldev/
+:uri-eldev-doc: https://emacs-eldev.github.io/eldev/
 :uri-setup-emacs: https://github.com/jcs090218/setup-emacs
 
 
 = setup-eldev
 
 image:https://img.shields.io/badge/License-MIT-green.svg[License: MIT, link=https://opensource.org/licenses/MIT]
-image:https://github.com/eldev/setup-eldev/workflows/CI/badge.svg[CI, link=https://github.com/eldev/setup-eldev/actions?query=workflow%3ACI]
+image:https://github.com/emacs-eldev/setup-eldev/workflows/CI/badge.svg[CI, link=https://github.com/eldev/setup-eldev/actions?query=workflow%3ACI]
 
 Install {uri-eldev}[Eldev] in a GitHub Actions workflow.  Can be used on
 Linux, macOS and Windows operating systems — i.e. currently all OSes
