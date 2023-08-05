@@ -5,10 +5,10 @@ author: 'doublep'
 runs:
   using: composite
   steps:
-  - if: "!startsWith (vars.RUNNER_OS, 'windows')"
+  - if: runner.os != 'Windows'
     run: curl -fsSL https://raw.github.com/emacs-eldev/eldev/master/webinstall/github-eldev | sh
     shell: bash
-  - if: startsWith (vars.RUNNER_OS, 'windows')
+  - if: runner.os == 'Windows'
     run: curl.exe -fsSL https://raw.github.com/emacs-eldev/eldev/master/webinstall/github-eldev.bat | cmd /Q
     shell: pwsh
 
