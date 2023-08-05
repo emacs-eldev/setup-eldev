@@ -1,0 +1,104 @@
+ifndef::env-github[:icons: font]
+ifdef::env-github[]
+:warning-caption: :warning:
+:caution-caption: :fire:
+:important-caption: :exclamation:
+:note-caption: :paperclip:
+:tip-caption: :bulb:
+endif::[]
+:uri-eldev: https://eldev.github.io/eldev/
+:uri-eldev-doc: https://eldev.github.io/eldev/
+:uri-setup-emacs: https://github.com/jcs090218/setup-emacs
+
+
+= setup-eldev
+
+image:https://img.shields.io/badge/License-MIT-green.svg[License: MIT, link=https://opensource.org/licenses/MIT]
+image:https://github.com/eldev/setup-eldev/workflows/CI/badge.svg[CI, link=https://github.com/eldev/setup-eldev/actions?query=workflow%3ACI]
+
+Install {uri-eldev}[Eldev] in a GitHub Actions workflow.  Can be used on
+Linux, macOS and Windows operating systems — i.e. currently all OSes
+available on GitHub workflow runners.
+
+Refer to {uri-eldev-doc}#github-workflows[Eldev’s own documentation]
+on how to use the installed tool for continuous integration on GitHub.
+
+== Usage
+
+This action currently has no parameters.
+
+In addition to Eldev, you will need to make sure Emacs of appropriate
+version is available.  I recommend using {uri-setup-emacs}[Jen-Chieh
+Shen’s `setup-emacs` action], which runs on all operating systems, but
+any other method you prefer can be used just as well.
+
+Usage, including Emacs setup:
+
+[source,yaml]
+----
+    steps:
+    ...
+
+    - name: Set up Emacs
+      uses: jcs090218/setup-emacs@master
+      with:
+        version: ...
+
+    - name: Install Eldev
+      uses: eldev/setup-eldev@v1
+----
+
+== Full example
+
+An example workflow that tests on different Emacs versions and
+different OSes:
+
+[source,yaml]
+----
+name: CI
+
+on:
+  push:
+    paths-ignore: ['**.md', '**.adoc']
+  pull_request:
+    paths-ignore: ['**.md', '**.adoc']
+
+jobs:
+  test:
+    runs-on: ${{matrix.os}}
+    continue-on-error: ${{matrix.emacs_version == 'snapshot'}}
+
+    strategy:
+      matrix:
+        os: [ubuntu-latest]
+        emacs_version: ['27.1', '27.2', '28.1', '28.2', '29.1', 'snapshot']
+        include:
+          - os: macos-latest
+            emacs_version: '29.1'
+          - os: windows-latest
+            emacs_version: '29.1'
+
+    steps:
+    - name: Set up Emacs
+      uses: jcs090218/setup-emacs@master
+      with:
+        version: ${{matrix.emacs_version}}
+
+    - name: Install Eldev
+      uses: eldev/setup-eldev@v1
+
+    - name: Check out the source code
+      uses: actions/checkout@v3
+
+    - name: Test the project
+      run: |
+        eldev -p -dtT -C test
+
+    - name: Ensure there are no byte-compilation warnings
+      run: |
+        eldev -dtT -C compile --set all --warnings-as-errors
+
+    - name: Lint the project
+      run: |
+        eldev -p -dtT -C lint
+----

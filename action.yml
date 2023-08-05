@@ -1,0 +1,16 @@
+name: 'Set up Eldev'
+description: 'Install Eldev for testing Elisp projects.'
+author: 'doublep'
+
+runs:
+  using: composite
+  steps:
+  - if: "!startsWith (vars.RUNNER_OS, 'windows')"
+    run: curl -fsSL https://raw.github.com/doublep/eldev/master/webinstall/github-eldev | sh
+  - if: startsWith (vars.RUNNER_OS, 'windows')
+    run: curl.exe -fsSL https://raw.github.com/doublep/eldev/master/webinstall/github-eldev.bat | cmd /Q
+
+# https://haya14busa.github.io/github-action-brandings
+branding:
+  icon: 'command'
+  color: 'orange'

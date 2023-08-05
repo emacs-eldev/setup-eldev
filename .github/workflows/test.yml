@@ -1,0 +1,32 @@
+name: CI
+
+on:
+  push:
+    paths-ignore: ['**.md', '**.adoc']
+  pull_request:
+    paths-ignore: ['**.md', '**.adoc']
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        os: [ubuntu-latest, macos-latest, windows-latest]
+        # FIXME: Or test on different Emacs versions?  Probably not needed.
+        emacs_version: '29.1'
+
+    steps:
+    - name: Set up Emacs
+      uses: jcs090218/setup-emacs@master
+      with:
+        version: ${{matrix.emacs_version}}
+
+    - name: Check out the source code
+      uses: actions/checkout@v3
+
+    - name: Execute ourselves
+      uses: .
+
+    - name: Verify that Eldev is now available
+      run: |
+        eldev version eldev emacs
