@@ -10,7 +10,7 @@ runs:
     shell: bash
   - if: startsWith (vars.RUNNER_OS, 'windows')
     run: curl.exe -fsSL https://raw.github.com/emacs-eldev/eldev/master/webinstall/github-eldev.bat | cmd /Q
-    shell: bash
+    shell: pwsh
 
 # https://haya14busa.github.io/github-action-brandings
 branding:
