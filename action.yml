@@ -2,15 +2,36 @@ name: 'Set up Eldev'
 description: 'Install Eldev for testing Elisp projects.'
 author: 'doublep'
 
+inputs:
+  cache:
+    description: |
+      Cache project dependency packages.
+      Default is true.
+    default: true
+
 runs:
   using: composite
   steps:
+
   - if: runner.os != 'Windows'
     run: curl -fsSL https://raw.github.com/emacs-eldev/eldev/master/webinstall/github-eldev | sh
     shell: bash
   - if: runner.os == 'Windows'
     run: curl.exe -fsSL https://raw.github.com/emacs-eldev/eldev/master/webinstall/github-eldev.bat | cmd /Q
     shell: pwsh
+
+  - if: ${{inputs.cache == 'true'}}
+    id: eldev-cache
+    uses: actions/cache@v3
+    with:
+      # FIXME: Might want to cache the whole of `~/.cache/eldev'.  However, that would
+      #        include the installed package of Eldev itself, so we'd need to be careful
+      #        that it can be copied cross-OS and potentially cross-Emacs.  File path
+      #        includes MAJOR.MINOR Emacs version, but I'm not absolutely sure if that's
+      #        enough, especially when dealing with Emacs snapshots.
+      path: ~/.cache/eldev/global-cache
+      key: eldev
+      enableCrossOsArchive: true
 
 # https://haya14busa.github.io/github-action-brandings
 branding:
