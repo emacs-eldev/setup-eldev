@@ -25,7 +25,13 @@ on how to use the installed tool for continuous integration on GitHub.
 
 == Usage
 
-This action currently has no parameters.
+This action has one optional input:
+
+[no-bullet]
+- `cache`: whether to cache Eldev’s GPAC (global package archive
+  cache) between workflow runs, this is on (`true`) by default; this
+  speeds up workflow a bit, especially if your project has multiple
+  dependencies.
 
 In addition to Eldev, you will need to make sure Emacs of appropriate
 version is available.  I recommend using {uri-setup-emacs}[Jen-Chieh
