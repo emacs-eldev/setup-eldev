@@ -14,10 +14,10 @@ runs:
   steps:
 
   - if: runner.os != 'Windows'
-    run: curl -fsSL https://raw.github.com/emacs-eldev/eldev/master/webinstall/github-eldev | sh
+    run: curl -fsSL --retry 10 https://raw.github.com/emacs-eldev/eldev/master/webinstall/github-eldev | sh
     shell: bash
   - if: runner.os == 'Windows'
-    run: curl.exe -fsSL https://raw.github.com/emacs-eldev/eldev/master/webinstall/github-eldev.bat | cmd /Q
+    run: curl.exe -fsSL --retry 10 https://raw.github.com/emacs-eldev/eldev/master/webinstall/github-eldev.bat | cmd /Q
     shell: pwsh
 
   - if: ${{inputs.cache == 'true'}}
