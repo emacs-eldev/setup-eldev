@@ -3,25 +3,59 @@ description: 'Install Eldev for testing Elisp projects.'
 author: 'doublep'
 
 inputs:
+  bootstrap:
+    description: |
+      Bootstrap installed Eldev.  May be 'true', 'false' or 'auto', in
+      which case Eldev is bootstrapped if Emacs is already installed.
+      Default is 'auto'.
+    default: 'auto'
   cache:
     description: |
       Cache project dependency packages.
-      Default is true.
-    default: true
+      Default is 'true'.
+    default: 'true'
+
+outputs:
+  bootstrapped:
+    value: ${{steps.bootstrap.outputs.bootstrapped}}
+    description: |
+      'true' or 'false', depending on whether the installed Eldev was
+      bootstrapped.  However, a non-bootstrapped Eldev will still work
+      fine: it will just bootstrap itself automatically on first
+      invocation.
 
 runs:
   using: composite
   steps:
 
-  - if: runner.os != 'Windows'
-    run: curl -fsSL --retry 10 https://raw.github.com/emacs-eldev/eldev/master/webinstall/github-eldev | sh
+  # Install the executable script.
+  - if:    runner.os != 'Windows'
     shell: bash
-  - if: runner.os == 'Windows'
-    run: curl.exe -fsSL --retry 10 https://raw.github.com/emacs-eldev/eldev/master/webinstall/github-eldev.bat | cmd /Q
+    run:   curl -fsSL --retry 10 https://raw.github.com/emacs-eldev/eldev/master/webinstall/github-eldev | sh
+  - if:    runner.os == 'Windows'
     shell: pwsh
+    run:   curl.exe -fsSL --retry 10 https://raw.github.com/emacs-eldev/eldev/master/webinstall/github-eldev.bat | cmd /Q
 
-  - if: ${{inputs.cache == 'true'}}
-    id: eldev-cache
+  # Optionally bootstrap installed Eldev.
+  - id:    bootstrap
+    shell: bash
+    run: |
+      if [ "${{inputs.bootstrap}}" == "true" ] || ([ "${{inputs.bootstrap}}" == "auto" ] && [ $(type -p "${ELDEV_EMACS:-${EMACS:-emacs}}") ]); then
+        eldev --quiet
+        echo "bootstrapped=true" >> "$GITHUB_OUTPUT"
+        echo Successfully bootstrapped Eldev:
+        eldev version eldev emacs
+      else
+        echo "bootstrapped=false" >> "$GITHUB_OUTPUT"
+        if [ "${{inputs.bootstrap}}" == "auto" ]; then
+          echo Not bootstrapping Eldev in 'auto' mode, as Emacs is not yet available
+        else
+          echo Not bootstrapping Eldev: not requested
+        fi
+      fi
+
+  # Optionally share Eldev's GPAC between workflow executions.
+  - if:   inputs.cache == 'true'
     uses: actions/cache@v3
     with:
       # FIXME: Might want to cache the whole of `~/.cache/eldev'.  However, that would
@@ -30,7 +64,7 @@ runs:
       #        includes MAJOR.MINOR Emacs version, but I'm not absolutely sure if that's
       #        enough, especially when dealing with Emacs snapshots.
       path: ~/.cache/eldev/global-cache
-      key: eldev
+      key:  eldev
       enableCrossOsArchive: true
 
 # https://haya14busa.github.io/github-action-brandings

@@ -10,22 +10,55 @@ jobs:
   test:
     runs-on: ${{matrix.os}}
     strategy:
+      fail-fast: false
       matrix:
         os: [ubuntu-latest, macos-latest, windows-latest]
-        # FIXME: Or test on different Emacs versions?  Probably not needed.
-        emacs_version: ['29.1']
+        order: [emacs-first, eldev-first]
+        bootstrap: ['true', 'false', 'auto']
+        emacs-version: ['29.1']
+
+        exclude:
+          # This combination is expected to fail anyway.  FIXME: Or somehow check that it _does_ fail?
+          - order: eldev-first
+            bootstrap: 'true'
 
     steps:
-    - name: Set up Emacs
+    - name: Set up Emacs (before Eldev)
+      if:   matrix.order == 'emacs-first'
       uses: jcs090218/setup-emacs@master
       with:
-        version: ${{matrix.emacs_version}}
+        version: ${{matrix.emacs-version}}
 
     - name: Check out the source code
       uses: actions/checkout@v4
 
     - name: Execute ourselves
+      id:   self
       uses: ./
+      with:
+        bootstrap: ${{matrix.bootstrap}}
+
+    - name: Check bootstrapping results
+      run: |
+        EXPECTED=false
+        if [ "${{matrix.bootstrap}}" == "true" ] || ([ "${{matrix.bootstrap}}" == "auto" ] && [ "${{matrix.order}}" == "emacs-first" ]); then
+          EXPECTED=true
+        fi
+        if [ "${{steps.self.outputs.bootstrapped}}" != "${EXPECTED}" ]; then
+          if [ "${{steps.self.outputs.bootstrapped}}" == "true" ]; then
+            echo "Eldev got bootstrapped, but it must not have been with these settings"
+          else
+            echo "Eldev wasn't bootstrapped, but it must have been with these settings"
+          fi
+          exit 1
+        fi
+      shell: bash
+
+    - name: Set up Emacs (after Eldev)
+      if:   matrix.order == 'eldev-first'
+      uses: jcs090218/setup-emacs@master
+      with:
+        version: ${{matrix.emacs-version}}
 
     - name: Verify that Eldev is now available
       run: |
