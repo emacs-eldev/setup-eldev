@@ -17,7 +17,7 @@ inputs:
 
 outputs:
   bootstrapped:
-    value: ${{steps.bootstrap.outputs.bootstrapped}}
+    value: ${{steps.bootstrap-unix.outputs.result || steps.bootstrap-windows.outputs.result}}
     description: |
       'true' or 'false', depending on whether the installed Eldev was
       bootstrapped.  However, a non-bootstrapped Eldev will still work
@@ -32,27 +32,51 @@ runs:
   - if:    runner.os != 'Windows'
     shell: bash
     run:   curl -fsSL --retry 10 https://raw.github.com/emacs-eldev/eldev/master/webinstall/github-eldev | sh
+
   - if:    runner.os == 'Windows'
     shell: pwsh
     run:   curl.exe -fsSL --retry 10 https://raw.github.com/emacs-eldev/eldev/master/webinstall/github-eldev.bat | cmd /Q
 
   # Optionally bootstrap installed Eldev.
-  - id:    bootstrap
+  - if:    runner.os != 'Windows'
+    id:    bootstrap-unix
     shell: bash
     run: |
       if [ "${{inputs.bootstrap}}" == "true" ] || ([ "${{inputs.bootstrap}}" == "auto" ] && [ $(type -p "${ELDEV_EMACS:-${EMACS:-emacs}}") ]); then
         eldev --quiet
-        echo "bootstrapped=true" >> "$GITHUB_OUTPUT"
+        echo "result=true" >> "$GITHUB_OUTPUT"
         echo Successfully bootstrapped Eldev:
         eldev version eldev emacs
       else
-        echo "bootstrapped=false" >> "$GITHUB_OUTPUT"
+        echo "result=false" >> "$GITHUB_OUTPUT"
         if [ "${{inputs.bootstrap}}" == "auto" ]; then
           echo Not bootstrapping Eldev in 'auto' mode, as Emacs is not yet available
         else
           echo Not bootstrapping Eldev: not requested
         fi
       fi
+
+  - if:    runner.os == 'Windows'
+    id:    bootstrap-windows
+    shell: pwsh
+    run: |
+      if (("${{inputs.bootstrap}}" -eq "true") `
+          -or (("${{inputs.bootstrap}}" -eq "auto") `
+               -and (Get-Command ($env:ELDEV_EMACS ?? ($env:EMACS ?? "emacs")) -ErrorAction SilentlyContinue))) {
+        eldev --quiet
+        echo "result=true" >> $env:GITHUB_OUTPUT
+        echo "Successfully bootstrapped Eldev:"
+        eldev version eldev emacs
+      }
+      else {
+        echo "result=false" >> $env:GITHUB_OUTPUT
+        if ("${{inputs.bootstrap}}" -eq "auto") {
+          echo "Not bootstrapping Eldev in 'auto' mode, as Emacs is not yet available"
+        }
+        else {
+          echo "Not bootstrapping Eldev: not requested"
+        }
+      }
 
   # Optionally share Eldev's GPAC between workflow executions.
   - if:   inputs.cache == 'true'
