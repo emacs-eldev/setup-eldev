@@ -25,9 +25,17 @@ on how to use the installed tool for continuous integration on GitHub.
 
 == Usage
 
-This action has one optional input:
+This action has two optional inputs:
 
 [no-bullet]
+- `bootstrap`: whether to bootstrap Eldev right away, can be `true`,
+  `auto` (the default) or `false`.  When `auto`, Eldev will be
+  bootstrapped if Emacs is already provided by a previous workflow
+  step (with typical usage this is the same as `true`).  If not
+  bootstrapped here, Eldev will later bootstrap itself on first
+  invocation.  However, doing that explicitly during installation can
+  help to separate potential problems (e.g. due to network failures)
+  from your real testing code and have them in a predictable place.
 - `cache`: whether to cache Eldev’s GPAC (global package archive
   cache) between workflow runs, this is on (`true`) by default; this
   speeds up workflow a bit, especially if your project has multiple
@@ -72,23 +80,23 @@ on:
 jobs:
   test:
     runs-on: ${{matrix.os}}
-    continue-on-error: ${{matrix.emacs_version == 'snapshot'}}
+    continue-on-error: ${{matrix.emacs-version == 'snapshot'}}
 
     strategy:
       matrix:
         os: [ubuntu-latest]
-        emacs_version: ['27.1', '27.2', '28.1', '28.2', '29.1', 'snapshot']
+        emacs-version: ['27.1', '27.2', '28.1', '28.2', '29.1', 'snapshot']
         include:
           - os: macos-latest
-            emacs_version: '29.1'
+            emacs-version: '29.1'
           - os: windows-latest
-            emacs_version: '29.1'
+            emacs-version: '29.1'
 
     steps:
     - name: Set up Emacs
       uses: jcs090218/setup-emacs@master
       with:
-        version: ${{matrix.emacs_version}}
+        version: ${{matrix.emacs-version}}
 
     - name: Install Eldev
       uses: emacs-eldev/setup-eldev@v1
