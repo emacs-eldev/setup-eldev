@@ -27,24 +27,30 @@ on how to use the installed tool for continuous integration on GitHub.
 
 This action has two optional inputs:
 
-[no-bullet]
 - `bootstrap`: whether to bootstrap Eldev right away, can be `true`,
   `auto` (the default) or `false`.  When `auto`, Eldev will be
   bootstrapped if Emacs is already provided by a previous workflow
-  step (with typical usage this is the same as `true`).  If not
-  bootstrapped here, Eldev will later bootstrap itself on first
-  invocation.  However, doing that explicitly during installation can
-  help to separate potential problems (e.g. due to network failures)
-  from your real testing code and have them in a predictable place.
+  step (with typical usage this is the same as `true`).  Bootstrapping
+  explicitly during installation can help to separate potential
+  problems (e.g. due to network failures) from your real testing code
+  and have them in a predictable place.
 - `cache`: whether to cache Eldev’s GPAC (global package archive
   cache) between workflow runs, this is on (`true`) by default; this
   speeds up workflow a bit, especially if your project has multiple
   dependencies.
 
+There is currently one output:
+
+- `bootstrapped`: whether the installed Eldev was bootstrapped by the
+  action (see corresponding input above).  But even if not
+  bootstrapped by the action, Eldev will do it automatically on first
+  invocation anyway.
+
 In addition to Eldev, you will need to make sure Emacs of appropriate
-version is available.  I recommend using {uri-setup-emacs}[Jen-Chieh
-Shen’s `setup-emacs` action], which runs on all operating systems, but
-any other method you prefer can be used just as well.
+version is available, preferably _before_ invoking this action.  I
+recommend using {uri-setup-emacs}[Jen-Chieh Shen’s `setup-emacs`
+action], which runs on all operating systems, but any other method you
+prefer can be used just as well.
 
 Usage, including Emacs setup:
 
