@@ -80,7 +80,7 @@ runs:
 
   # Optionally share Eldev's GPAC between workflow executions.
   - if:   inputs.cache == 'true'
-    uses: actions/cache@v3
+    uses: actions/cache@v4
     with:
       # FIXME: Might want to cache the whole of `~/.cache/eldev'.  However, that would
       #        include the installed package of Eldev itself, so we'd need to be careful
