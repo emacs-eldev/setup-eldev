@@ -30,7 +30,7 @@ jobs:
         version: ${{matrix.emacs-version}}
 
     - name: Check out the source code
-      uses: actions/checkout@v4
+      uses: actions/checkout@v6
 
     - name: Execute ourselves
       id:   self
